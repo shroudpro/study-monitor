@@ -100,7 +100,7 @@ StudyMonitor/
    pip install -r requirements.txt
    ```
 
-3. **放置视觉模型**：
+3. **放置视觉模型（默认已完成）**：
    请确保 `backend/models/yolo11n-pose.onnx` 文件存在。如果不存在，请从官方 Release 或 [Ultralytics](https://github.com/ultralytics/assets/releases/download/v8.3.0/yolo11n-pose.onnx) 下载并改名放入该目录。
 
 ### 第二步：安装并配置 Ollama (AI 引擎)
@@ -115,7 +115,7 @@ StudyMonitor/
 4. **(可选) 节省 C 盘空间**：如果您的 C 盘空间紧张，请设置系统环境变量 `OLLAMA_MODELS` 指向其他盘符的文件夹。
 
 ### 第三步：前端编译
-
+(请以管理员身份运行)
 ```bash
 cd ../frontend
 npm install
