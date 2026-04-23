@@ -8,8 +8,6 @@ node_modules/
 dist/
 .env
 backend/data/*.db
-backend/models/*.onnx
-backend/models/*.pt
 frontend/.vscode/
 frontend/.idea/
 .DS_Store
