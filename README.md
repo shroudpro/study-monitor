@@ -60,6 +60,10 @@ StudyMonitor/
 │   │   └── style.css            # 全局样式与状态主题变量
 │   ├── package.json
 │   └── vite.config.ts
+├── environment.yml              # 根目录 Conda 环境配置
+├── install-env.ps1              # 一键安装/更新 Conda 环境
+├── build-frontend.ps1           # 一键安装依赖并编译前端
+├── start-all.ps1                # 一键启动前后端
 └── README.md
 ```
 
@@ -79,9 +83,9 @@ StudyMonitor/
 
 ---
 
-## 🚀 保姆级部署教程
+## 🚀 快速部署教程
 
-### 第一步：克隆项目与后端配置
+### 第一步：克隆项目
 
 1. **获取代码**：
    ```bash
@@ -89,18 +93,7 @@ StudyMonitor/
    cd StudyMonitor
    ```
 
-2. **创建 Python 环境**：
-   ```bash
-   # 创建并激活环境
-   conda create -n study-monitor python=3.11
-   conda activate study-monitor
-
-   # 进入后端目录安装依赖
-   cd backend
-   pip install -r requirements.txt
-   ```
-
-3. **放置视觉模型（默认已完成）**：
+2. **放置视觉模型（默认已完成）**：
    请确保 `backend/models/yolo11n-pose.onnx` 文件存在。如果不存在，请从官方 Release 或 [Ultralytics](https://github.com/ultralytics/assets/releases/download/v8.3.0/yolo11n-pose.onnx) 下载并改名放入该目录。
 
 ### 第二步：安装并配置 Ollama (AI 引擎)
@@ -114,11 +107,41 @@ StudyMonitor/
 3. **验证**：运行 `ollama list`，确认列表中包含 `qwen2.5:1.5b`。
 4. **(可选) 节省 C 盘空间**：如果您的 C 盘空间紧张，请设置系统环境变量 `OLLAMA_MODELS` 指向其他盘符的文件夹。
 
-### 第三步：前端编译
-(请以管理员身份运行)
-```bash
-cd ../frontend
-npm install
+### 第三步：一键安装 Conda 环境
+
+在项目根目录打开 PowerShell，运行：
+
+```powershell
+.\install-env.ps1
+```
+
+该脚本会读取根目录 `environment.yml`，自动创建或更新 `study-monitor` Conda 环境。
+
+### 第四步：一键安装并编译前端
+
+```powershell
+.\build-frontend.ps1
+```
+
+该脚本会进入 `frontend` 目录，优先使用 `npm ci` 安装依赖，并执行 `npm run build` 验证前端能正常编译。
+
+### 第五步：一键启动前后端
+
+```powershell
+.\start-all.ps1
+```
+
+该脚本会打开两个终端窗口：
+
+- 后端服务：`http://localhost:8000`
+- 前端页面：`http://localhost:3000`
+
+启动后，在浏览器访问 `http://localhost:3000`。
+
+如果 PowerShell 提示脚本执行策略限制，可在当前终端临时运行：
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 ```
 
 ---
@@ -126,20 +149,57 @@ npm install
 ## 💻 使用指南
 
 ### 1. 启动服务
-您需要开启两个终端窗口分别运行前后端：
+推荐直接使用根目录脚本：
+
+```powershell
+.\start-all.ps1
+```
+
+#### 脚本失效时手动启动
+
+如果 `start-all.ps1` 无法正常打开窗口，或者当前系统不允许执行 PowerShell 脚本，可以按下面步骤手动启动。
+
+首次运行时，先在项目根目录准备环境：
+
+```powershell
+conda env create -f environment.yml
+cd frontend
+npm ci
+```
+
+如果已经安装过环境和前端依赖，只需要开启两个终端窗口分别运行前后端。
 
 *   **后端**：
-    ```bash
+    ```powershell
     cd backend
     conda activate study-monitor
     python -m app.main
     ```
+    后端启动成功后，可访问 `http://localhost:8000/api/health` 检查服务状态。
+
 *   **前端**：
-    ```bash
+    ```powershell
     cd frontend
     npm run dev
     ```
-启动后，在浏览器访问 `http://localhost:3000`。
+    前端启动成功后，在浏览器访问 `http://localhost:3000`。
+
+如果当前终端无法使用 `conda activate`，可以改用 `conda run`：
+
+```powershell
+cd backend
+conda run -n study-monitor python -m app.main
+```
+
+如果没有 `package-lock.json` 或 `npm ci` 失败，可以改用：
+
+```powershell
+cd frontend
+npm install
+npm run dev
+```
+
+手动启动的完整链路等价于脚本启动：后端负责摄像头、视觉识别、规则推理和语义接口，前端负责页面展示和 WebSocket 连接。两个终端都需要保持运行，最终访问地址仍然是 `http://localhost:3000`。
 
 ### 2. 开始监控
 - **权限授予**：点击左侧视窗，允许浏览器调用摄像头。
